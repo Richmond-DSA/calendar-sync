@@ -1,0 +1,13 @@
+{
+  "rules": {
+		"default-case-last": "warn",
+		"grouped-accessor-pairs": "warn",
+		"no-duplicate-imports": "error",
+    "require-await": "warn"
+  },
+	"categories": {
+    "correctness": "error",
+    "suspicious": "error",
+		"perf": "warn"
+  }
+}

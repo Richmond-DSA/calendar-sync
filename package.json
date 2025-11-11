@@ -1,0 +1,30 @@
+{
+  "name": "calendar-sync",
+  "version": "1.0.0",
+  "description": "A utility for syncing Google Calendar to Discord Events",
+  "main": "index.js",
+  "repository": "git@github.com:Richmond-DSA/calendar-sync.git",
+  "author": "Cezar Carvalhaes <cezarcarvalhaes@gmail.com>",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "@googleapis/calendar": "^12.0.0",
+    "discord.js": "^14.24.2",
+    "dotenv": "^16.6.1",
+    "google-auth-library": "^10.5.0",
+    "node-cron": "^3.0.3"
+  },
+  "devDependencies": {
+    "appwrite": "^21.4.0",
+    "appwrite-cli": "^11.1.0",
+    "nodemon": "^3.0.2",
+    "oxlint": "^1.26.0",
+    "oxlint-tsgolint": "^0.5.1",
+    "typescript": "^5.9.3"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test:local": "npm run build && node dist/test/local-runner.js",
+    "dev": "nodemon --exec \"npm run test:local\""
+  }
+}
