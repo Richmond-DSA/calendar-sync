@@ -1,4 +1,26 @@
 {
     "projectId": "690eb2e10033c6d34d5e",
-    "endpoint": "https://nyc.cloud.appwrite.io/v1"
+    "endpoint": "https://nyc.cloud.appwrite.io/v1",
+    "functions": [
+        {
+            "$id": "691398db00066f8984cb",
+            "name": "calendar-sync",
+            "runtime": "node-22",
+            "specification": "s-0.5vcpu-512mb",
+            "execute": [
+                "any"
+            ],
+            "events": [],
+            "scopes": [
+                "users.read"
+            ],
+            "schedule": "",
+            "timeout": 15,
+            "enabled": true,
+            "logging": true,
+            "entrypoint": "dist/index.js",
+            "commands": "yarn && yarn build",
+            "path": "functions/calendar-sync"
+        }
+    ]
 }

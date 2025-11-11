@@ -24,7 +24,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "test:local": "npm run build && node dist/test/local-runner.js",
+    "test:local": "yarn build && node dist/test/local-runner.js",
     "dev": "nodemon --exec \"npm run test:local\""
   }
 }
