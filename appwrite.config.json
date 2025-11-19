@@ -14,7 +14,7 @@
             "scopes": [
                 "users.read"
             ],
-            "schedule": "",
+            "schedule": "0 */3 * * *",
             "timeout": 15,
             "enabled": true,
             "logging": true,
