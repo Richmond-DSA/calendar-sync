@@ -21,6 +21,7 @@
   },
   "scripts": {
     "build": "tsc",
+    "test": "node --test \"test/**/*.test.ts\"",
     "test:local": "pnpm build && node dist/test/local-runner.js",
     "dev": "nodemon --exec \"pnpm test:local\""
   },

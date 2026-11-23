@@ -2,6 +2,7 @@ import { GuildScheduledEvent } from "discord.js";
 
 import { CalendarEvent } from "../models/interface";
 import getGuild from "./getGuild";
+import htmlToMarkdown from "./htmlToMarkdown";
 
 const createOrUpdateDiscordEvent = async (event: CalendarEvent, discordEvent?: GuildScheduledEvent) => {
 	try {
@@ -12,9 +13,15 @@ const createOrUpdateDiscordEvent = async (event: CalendarEvent, discordEvent?: G
 			throw new Error(`Cannot determine start and end times for event ${discordEvent ? 'update' : 'creation'}.`)
 		}
 
-		let description = event.description || '';
 		// attach the google calendar id in the description (unfortunately this is the only place we can associate the two)
-		description += `\n\nGoogle Calendar Id: ${event.id}` 
+		const idLine = `\n\nGoogle Calendar Id: ${event.id}`;
+		let body = htmlToMarkdown(event.description || '');
+		// Discord rejects descriptions over 1000 chars; cut the body so the id line always survives
+		const maxBody = 1000 - idLine.length;
+		if (body.length > maxBody) {
+			body = body.slice(0, maxBody - 1).replace(/[\uD800-\uDBFF]$/, '').trimEnd() + '…';
+		}
+		const description = body + idLine;
 
 		const params = {
 			description,
