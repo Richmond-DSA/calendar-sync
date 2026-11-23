@@ -140,3 +140,5 @@ vite.config.ts.timestamp-*
 
 #vscode
 .vscode
+# Netlify CLI local state
+.netlify

@@ -1,6 +1,6 @@
 # Calendar Sync
 
-An Appwrite Function that automatically synchronizes Google Calendar events with Discord scheduled events. This runs as a scheduled cron job to keep your Discord server events in sync with your organization's calendar. It only does a one-way sync, Discord events will not be published on our Public Events Calendar.
+A Netlify Scheduled Function that automatically synchronizes Google Calendar events with Discord scheduled events. This runs as a scheduled cron job to keep your Discord server events in sync with your organization's calendar. It only does a one-way sync, Discord events will not be published on our Public Events Calendar.
 
 ## Overview
 
@@ -8,7 +8,7 @@ This project:
 - Fetches upcoming events from a Google Calendar
 - Creates, updates, or deletes corresponding Discord scheduled events (only deletes Discord events that were created by this bot)
 - Maintains synchronization by tracking Google Calendar IDs in Discord event descriptions
-- Runs as an Appwrite Function on a scheduled trigger
+- Runs as a Netlify Scheduled Function every 3 hours
 
 ## Prerequisites
 
@@ -16,7 +16,7 @@ This project:
 - Access to VaultWarden for environment variables
 - Google Cloud Console access for Calendar API credentials
 - Discord bot with appropriate permissions
-- Appwrite project setup
+- Netlify site linked to this repo
 
 ## Environment Variables
 
@@ -42,7 +42,7 @@ DAYS_TO_SYNC=14  # Number of days ahead to sync (optional, defaults to 14)
 ```bash
 git clone https://github.com/Richmond-DSA/calendar-sync.git
 cd calendar-sync
-npm install
+pnpm install
 ```
 
 ### 2. Get Environment Variables from VaultWarden
@@ -69,26 +69,26 @@ RDSA already has a Google Cloud project called `calendar-sync` with the Calendar
 
 ### 5. Local Testing
 
-Since this is designed as an Appwrite Function, you can test locally without Docker:
+You can run the sync locally against your `.env` (this hits the real Google Calendar and Discord server):
 
 ```bash
 # Build and run local test
-yarn test:local
+pnpm test:local
 
 # Development mode with auto-reload
-yarn dev
+pnpm dev
 
 # Just build
-yarn build
+pnpm build
 ```
 
-The local test runner simulates the Appwrite environment and allows you to test the sync logic with your real Google Calendar and Discord server.
+The local runner calls the same sync entry point (`index.ts`) that the Netlify function wraps.
 
 ## Project Structure
 
 ```
 calendar-sync/
-├── index.ts                 # Main Appwrite Function entry point
+├── index.ts                 # Sync entry point (platform-agnostic)
 ├── config.ts               # Configuration and validation
 ├── models/
 │   └── interface.ts        # TypeScript interfaces
@@ -101,8 +101,9 @@ calendar-sync/
 │   └── syncEvents.ts       # Main sync logic
 ├── test/
 │   └── local-runner.ts     # Local testing utilities
-└── functions/
-    └── calendar-sync/      # Appwrite Function deployment files
+└── netlify/
+    └── functions/
+        └── calendar-sync.mts  # Netlify scheduled function (schedule lives here)
 ```
 
 ## How It Works
@@ -113,34 +114,25 @@ calendar-sync/
 4. **Execute Changes**: Performs all operations concurrently using `Promise.allSettled`
 5. **Track Association**: Links events by storing Google Calendar IDs in Discord event descriptions
 
-## Deployment to Appwrite
+## Deployment to Netlify
 
-The function is configured to deploy to Appwrite with the following specifications:
+`netlify/functions/calendar-sync.mts` wraps `index.ts` and exports its cron schedule (`0 */3 * * *`, every 3 hours, **UTC**). Netlify bundles the function itself; no build command or `netlify.toml` is needed.
 
-- **Project ID**: `690eb2e10033c6d34d5e`
-- **Endpoint**: `https://nyc.cloud.appwrite.io/v1`
-- **Runtime**: Node.js 22
-- **Specification**: 0.5 vCPU, 512MB RAM
-- **Timeout**: 15 seconds
-- **Entry Point**: `dist/index.js`
+### 1. Create the site
 
-### 1. Build and Deploy
+1. In Netlify, add a new site from this GitHub repo (leave build command and publish directory at defaults).
+2. Under **Site configuration → Environment variables**, add the variables listed above (from VaultWarden).
+3. Deploy. The function appears on the **Functions** page with a `Scheduled` badge and its next run time.
 
-```bash
-# Install dependencies and build
-yarn && yarn build
+### 2. Changing the schedule
 
-# Deploy using Appwrite CLI
-appwrite functions createDeployment --functionId=691398db00066f8984cb
-```
+Edit `config.schedule` in `netlify/functions/calendar-sync.mts` and push. Cron expressions run in UTC.
 
-### 2. Configure Schedule
+### Notes
 
-Set up the cron trigger in Appwrite:
-- **Frequency**: Once per hour (recommended: `0 */1 * * *`)
-- **Timezone**: Set according to your calendar's timezone
-
-The hourly frequency ensures events stay synchronized without overwhelming the APIs with unnecessary requests.
+- Scheduled functions only run on the **published production deploy**, not Deploy Previews or branch deploys.
+- They can't be invoked by URL. Use **Run now** on the function's page in the Netlify UI to trigger it manually.
+- Execution limit is 30 seconds.
 
 ## Monitoring
 
@@ -150,7 +142,7 @@ The function provides detailed logging for:
 - Individual operation results and errors
 - Overall sync statistics
 
-Check Appwrite Function logs for monitoring and troubleshooting.
+Check the function's logs on the Netlify **Functions** page for monitoring and troubleshooting.
 
 ## Error Handling
 
@@ -162,8 +154,8 @@ Check Appwrite Function logs for monitoring and troubleshooting.
 ## Contributing
 
 1. Follow the local development setup
-2. Make changes and test locally using `yarn dev`
-3. Ensure TypeScript compilation passes: `yarn build`
+2. Make changes and test locally using `pnpm dev`
+3. Ensure TypeScript compilation passes: `pnpm build`
 4. Submit pull requests with clear descriptions
 
 ## License

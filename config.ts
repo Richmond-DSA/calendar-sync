@@ -21,7 +21,7 @@ const {
 const parsedDaysToSync = parseInt(DAYS_TO_SYNC, 10);
 
 const config = {
-  DAYS_TO_SYNC: Number.isNaN(parsedDaysToSync) ? parsedDaysToSync : 14,
+  DAYS_TO_SYNC: Number.isNaN(parsedDaysToSync) ? 14 : parsedDaysToSync,
   DISCORD_TOKEN,
   GUILD_ID,
   GOOGLE_CALENDAR_ID,
